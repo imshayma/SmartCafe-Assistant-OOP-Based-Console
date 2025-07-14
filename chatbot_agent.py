@@ -7,14 +7,37 @@ class ChatBotAgent:
         self.research_agent = ResearchAgent()
 
     def respond(self, user_input):
-        intent, item = detect_intent(user_input)
-        if intent == "ingredient":
-            return format_output("Ingredients", self.research_agent.get_ingredients(item))
+        intent, value = detect_intent(user_input)
+
+        if intent == "ingredients":
+          result = self.research_agent.get_ingredients(value)
+          if isinstance(result, list):
+             return f"🧾 Ingredients in {value}: " + ", ".join(result)
+          return result
+
         elif intent == "nutrition":
-            return format_output("Nutrition", self.research_agent.get_nutrition(item))
+           result = self.research_agent.get_nutrition(value)
+           if isinstance(result, dict):
+               return f"📊 {value} - Calories: {result['calories']} kcal, Sugar: {result['sugar_g']}g"
+           return result
+
         elif intent == "hours":
-            return format_output("Hours", self.research_agent.get_hours(item))
-        elif intent == "list":
-            return format_output("Drinks", self.research_agent.get_drink_list())
+           return self.research_agent.get_opening_hours(value)
+
+        elif intent == "drinks":
+            return self.research_agent.list_drinks()
+
         else:
-            return "Sorry, I didn't understand that."
+            return "❌ I'm sorry, I didn't understand your question."
+
+# Optional testing block
+if __name__ == "__main__":
+    bot = ChatBotAgent()
+    print("👋 Welcome to SmartCafe Assistant! Type 'exit' to quit.")
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() in ["exit", "quit"]:
+            print("👋 Goodbye!")
+            break
+        response = bot.respond(user_input)
+        print(response)
