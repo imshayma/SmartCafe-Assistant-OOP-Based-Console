@@ -1,17 +1,30 @@
+import json
 import re
-
+ 
 def detect_intent(user_input):
-    # Pattern examples
-    if re.search(r"\bwhat's in\b|\bingredients\b", user_input):
-        drink = re.findall(r"mocha|latte|.*", user_input)
-        return "ingredient", drink[0] if drink else None
-    elif re.search(r"\bcalories\b|\bnutrition\b", user_input):
-        item = re.findall(r"hot chocolate|.*", user_input)
-        return "nutrition", item[0] if item else None
-    elif re.search(r"\bopen\b|\bhours\b", user_input):
-        day = re.findall(r"monday|tuesday|friday|.*", user_input)
-        return "hours", day[0] if day else None
-    elif re.search(r"\bdrinks\b|\bmenu\b", user_input):
-        return "list", None
-    else:
-        return None, None
+    # Normalize input
+    user_input = user_input.lower()
+
+    # Ingredient intent
+    match = re.search(r"what\'s in (.+)|ingredients of (.+)", user_input)
+    if match:
+        drink = match.group(1) or match.group(2)
+        return "ingredients", drink.title()
+
+    # Nutrition intent
+    match = re.search(r"calories in (.+)|nutrition of (.+)", user_input)
+    if match:
+        drink = match.group(1) or match.group(2)
+        return "nutrition", drink.title()
+
+    # Hours intent
+    match = re.search(r"open on (.+)", user_input)
+    if match:
+        day = match.group(1).capitalize()
+        return "hours", day
+
+    # List drinks intent
+    if re.search(r"what drinks do you have|available drinks|show menu", user_input):
+        return "drinks", None
+
+    return None, None
